@@ -23,7 +23,7 @@ variable "prod_db_identifier" {
 variable "environment" {
   description = "Environment name"
   type        = string
-  default     = "shared"
+  default     = "dev/staging"
 }
 
 variable "shared_instance_type" {
