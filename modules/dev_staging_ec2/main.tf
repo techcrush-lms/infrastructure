@@ -43,19 +43,24 @@ resource "aws_security_group" "shared_ec2" {
   }
 }
 
-# Fetch the latest Amazon Linux 2 AMI
-data "aws_ami" "amazon_linux_2" {
+# Fetch the latest Ubuntu 24.04 LTS AMI
+data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = ["099720109477"] # Canonical
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 
 resource "aws_instance" "shared_compute" {
-  ami                         = data.aws_ami.amazon_linux_2.id
+  ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [aws_security_group.shared_ec2.id]
