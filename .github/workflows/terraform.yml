@@ -60,6 +60,9 @@ jobs:
 
       - name: Terraform Plan
         id: plan
+        env:
+          TF_VAR_prod_instance_id: ${{ secrets.PROD_INSTANCE_ID }}
+          TF_VAR_prod_db_identifier: ${{ secrets.PROD_DB_IDENTIFIER }}
         run: terraform plan -no-color -input=false
         continue-on-error: true
 
@@ -112,4 +115,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
+        env:
+          TF_VAR_prod_instance_id: ${{ secrets.PROD_INSTANCE_ID }}
+          TF_VAR_prod_db_identifier: ${{ secrets.PROD_DB_IDENTIFIER }}
         run: terraform apply -auto-approve -input=false
