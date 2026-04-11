@@ -10,7 +10,7 @@ output "db_instance_port" {
 
 output "db_instance_identifier" {
   description = "Identifier of the RDS instance"
-  value       = aws_db_instance.this.id
+  value       = aws_db_instance.this.identifier
 }
 
 output "db_instance_url" {
