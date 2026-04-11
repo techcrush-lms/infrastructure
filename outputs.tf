@@ -20,7 +20,7 @@ output "production_db_endpoint" {
 
 output "production_db_url" {
   description = "Full connection URL (endpoint:port) for production DB"
-  value       = "${aws_db_instance.production.endpoint}:${aws_db_instance.production.port}"
+  value       = aws_db_instance.production.endpoint
 }
 
 output "production_db_username" {
@@ -65,13 +65,25 @@ output "staging_db_username" {
 }
 
 output "dev_db_url" {
-  description = "Full connection URL (endpoint:port) for the development DB"
-  value       = "${module.rds_dev.db_instance_endpoint}:${module.rds_dev.db_instance_port}"
+  description = "Connection URL for the development DB"
+  value       = module.rds_dev.db_instance_endpoint
+}
+
+output "dev_db_uri" {
+  description = "Full PostgreSQL URI for the development DB"
+  value       = "postgresql://${var.db_auth_username}:${var.db_auth_password}@${module.rds_dev.db_instance_endpoint}/${module.rds_dev.db_name}"
+  sensitive   = true
 }
 
 output "staging_db_url" {
-  description = "Full connection URL (endpoint:port) via RDS Proxy for Staging"
+  description = "Connection URL via RDS Proxy for Staging"
   value       = "${aws_db_proxy.staging.endpoint}:5432"
+}
+
+output "staging_db_uri" {
+  description = "Full PostgreSQL URI via RDS Proxy for Staging"
+  value       = "postgresql://${var.db_auth_username}:${var.db_auth_password}@${aws_db_proxy.staging.endpoint}:5432/${module.rds_staging.db_name}"
+  sensitive   = true
 }
 
 output "staging_rds_proxy_endpoint" {

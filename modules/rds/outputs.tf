@@ -44,3 +44,8 @@ output "db_instance_status" {
   description = "The RDS instance status"
   value       = aws_db_instance.this.status
 }
+
+output "db_name" {
+  description = "The name of the initial database"
+  value       = aws_db_instance.this.db_name
+}
