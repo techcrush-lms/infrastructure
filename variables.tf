@@ -48,3 +48,9 @@ variable "db_auth_password" {
     error_message = "The password must be at least 8 characters long and cannot contain '/', '@', or '\"'."
   }
 }
+
+variable "db_whitelist_cidr" {
+  description = "CIDR block to whitelist for database access (e.g. your local IP)"
+  type        = string
+  default     = "0.0.0.0/0"
+}

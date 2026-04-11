@@ -183,6 +183,14 @@ resource "aws_security_group" "dev_staging_rds" {
     security_groups = [aws_security_group.staging_rds_proxy.id]
   }
 
+  # Allow external whitelist (e.g. for local dev)
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [var.db_whitelist_cidr]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -256,6 +264,14 @@ resource "aws_security_group" "staging_rds_proxy" {
     to_port         = 5432
     protocol        = "tcp"
     security_groups = [module.shared_ec2.security_group_id]
+  }
+
+  # Allow external whitelist (e.g. for local dev)
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [var.db_whitelist_cidr]
   }
 
   egress {
