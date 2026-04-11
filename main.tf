@@ -139,17 +139,20 @@ module "shared_ec2" {
 
 # --- ECR Repositories (us-east-1) ---
 
-resource "aws_ecr_repository" "app" {
-  name                 = "${var.environment}-app"
-  image_tag_mutability = "MUTABLE"
+# --- ECR Repositories (us-east-1) ---
 
-  image_scanning_configuration {
-    scan_on_push = true
-  }
+locals {
+  ecr_repositories = [
+    "frontend-dev",
+    "backend-dev",
+    "frontend-staging",
+    "backend-staging"
+  ]
 }
 
-resource "aws_ecr_repository" "proxy" {
-  name                 = "${var.environment}-proxy"
+resource "aws_ecr_repository" "repos" {
+  for_each             = toset(local.ecr_repositories)
+  name                 = each.value
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
