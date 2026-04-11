@@ -64,6 +64,16 @@ output "staging_db_username" {
   sensitive   = true
 }
 
+output "dev_db_url" {
+  description = "Full connection URL (endpoint:port) for the development DB"
+  value       = "${module.rds_dev.db_instance_endpoint}:${module.rds_dev.db_instance_port}"
+}
+
+output "staging_db_url" {
+  description = "Full connection URL (endpoint:port) via RDS Proxy for Staging"
+  value       = "${aws_db_proxy.staging.endpoint}:5432"
+}
+
 output "staging_rds_proxy_endpoint" {
   description = "The endpoint of the staging RDS Proxy"
   value       = aws_db_proxy.staging.endpoint
