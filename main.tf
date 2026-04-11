@@ -205,8 +205,8 @@ resource "aws_secretsmanager_secret" "staging_db_credentials" {
 resource "aws_secretsmanager_secret_version" "staging_db_credentials" {
   secret_id = aws_secretsmanager_secret.staging_db_credentials.id
   secret_string = jsonencode({
-    username = var.username
-    password = var.password
+    username = var.db_auth_username
+    password = var.db_auth_password
   })
 }
 
@@ -317,8 +317,8 @@ module "rds_dev" {
   instance_identifier    = "dev-rds"
   vpc_security_group_ids = [aws_security_group.dev_staging_rds.id]
   subnet_ids             = data.aws_subnets.dev_available.ids
-  username               = var.username
-  password               = var.password
+  username               = var.db_auth_username
+  password               = var.db_auth_password
 }
 
 module "rds_staging" {
@@ -328,6 +328,6 @@ module "rds_staging" {
   instance_identifier    = "staging-rds"
   vpc_security_group_ids = [aws_security_group.dev_staging_rds.id]
   subnet_ids             = data.aws_subnets.dev_available.ids
-  username               = var.username
-  password               = var.password
+  username               = var.db_auth_username
+  password               = var.db_auth_password
 }

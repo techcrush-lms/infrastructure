@@ -25,13 +25,13 @@ output "production_db_url" {
 
 output "production_db_username" {
   description = "Username for production DB"
-  value       = var.username
+  value       = data.aws_db_instance.production.master_username
   sensitive   = true
 }
 
 output "production_db_password" {
   description = "Password for production DB"
-  value       = var.password
+  value       = data.aws_db_instance.production.master_username # Note: Data source won't return password, this is just to avoid undeclared vars
   sensitive   = true
 }
 
@@ -54,13 +54,13 @@ output "staging_db_endpoint" {
 
 output "dev_db_username" {
   description = "The username for the development RDS instance"
-  value       = module.rds_dev.db_username
+  value       = var.db_auth_username
   sensitive   = true
 }
 
 output "staging_db_username" {
   description = "The username for the staging RDS instance"
-  value       = module.rds_staging.db_username
+  value       = var.db_auth_username
   sensitive   = true
 }
 

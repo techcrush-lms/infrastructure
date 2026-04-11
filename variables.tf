@@ -32,19 +32,21 @@ variable "shared_instance_type" {
   default     = "t3.medium"
 }
 
-variable "username" {
-  description = "Username for the RDS instance"
+variable "db_auth_username" {
+  description = "Username for the Dev/Staging RDS instances"
   type        = string
   default     = "admin"
 }
 
-variable "password" {
-  description = "Password for the RDS instance"
+variable "db_auth_password" {
+  description = "Password for the Dev/Staging RDS instances"
   type        = string
   sensitive   = true
 
   validation {
-    condition     = length(var.password) >= 8 && !can(regex("[/@\"]", var.password))
+    condition     = length(var.db_auth_password) >= 8 && !can(regex("[/@\"]", var.db_auth_password))
     error_message = "The password must be at least 8 characters long and cannot contain '/', '@', or '\"'."
   }
+
+  default = "MxProjectStagingPass123!"
 }
