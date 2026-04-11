@@ -31,3 +31,15 @@ variable "shared_instance_type" {
   type        = string
   default     = "t3.medium"
 }
+
+variable "username" {
+  description = "Username for the RDS instance"
+  type        = string
+  default     = "admin"
+}
+
+variable "password" {
+  description = "Password for the RDS instance"
+  type        = string
+  sensitive   = true
+}
