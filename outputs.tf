@@ -18,12 +18,7 @@ output "production_db_endpoint" {
   value       = aws_db_instance.production.endpoint
 }
 
-output "ecr_app_url" {
-  description = "The URL of the App ECR repository"
-  value       = aws_ecr_repository.app.repository_url
-}
-
-output "ecr_proxy_url" {
-  description = "The URL of the Proxy ECR repository"
-  value       = aws_ecr_repository.proxy.repository_url
+output "ecr_repository_urls" {
+  description = "The URLs of the ECR repositories"
+  value       = { for k, v in aws_ecr_repository.repos : k => v.repository_url }
 }
