@@ -42,4 +42,5 @@ variable "password" {
   description = "Password for the RDS instance"
   type        = string
   sensitive   = true
+  default     = null
 }

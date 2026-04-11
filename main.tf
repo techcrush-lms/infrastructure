@@ -159,3 +159,175 @@ resource "aws_ecr_repository" "repos" {
     scan_on_push = true
   }
 }
+
+# --- Dev/Staging RDS Infrastructure (us-east-1) ---
+
+resource "aws_security_group" "dev_staging_rds" {
+  name        = "${var.environment}-rds-sg"
+  description = "Security group for Dev and Staging RDS"
+  vpc_id      = data.aws_vpc.dev_default.id
+
+  # Allow direct traffic from EC2 for Dev RDS
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [module.shared_ec2.security_group_id]
+  }
+
+  # Allow traffic from Staging RDS Proxy
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.staging_rds_proxy.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Environment = var.environment
+    Name        = "${var.environment}-rds-sg"
+  }
+}
+
+# --- Staging RDS Proxy (us-east-1) ---
+
+resource "aws_secretsmanager_secret" "staging_db_credentials" {
+  name = "staging-db-credentials-${module.rds_staging.db_instance_identifier}"
+}
+
+resource "aws_secretsmanager_secret_version" "staging_db_credentials" {
+  secret_id = aws_secretsmanager_secret.staging_db_credentials.id
+  secret_string = jsonencode({
+    username = var.username
+    password = var.password
+  })
+}
+
+resource "aws_iam_role" "staging_rds_proxy" {
+  name = "staging-rds-proxy-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "rds.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "staging_rds_proxy" {
+  name = "staging-rds-proxy-policy"
+  role = aws_iam_role.staging_rds_proxy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Effect   = "Allow"
+        Resource = [aws_secretsmanager_secret.staging_db_credentials.arn]
+      }
+    ]
+  })
+}
+
+resource "aws_security_group" "staging_rds_proxy" {
+  name        = "staging-rds-proxy-sg"
+  description = "Security group for Staging RDS Proxy"
+  vpc_id      = data.aws_vpc.dev_default.id
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [module.shared_ec2.security_group_id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Environment = "staging"
+    Name        = "staging-rds-proxy-sg"
+  }
+}
+
+resource "aws_db_proxy" "staging" {
+  name                   = "staging-rds-proxy"
+  debug_logging          = false
+  engine_family          = "POSTGRESQL"
+  idle_client_timeout    = 1800
+  require_tls            = true
+  role_arn               = aws_iam_role.staging_rds_proxy.arn
+  vpc_security_group_ids = [aws_security_group.staging_rds_proxy.id]
+  vpc_subnet_ids         = data.aws_subnets.dev_available.ids
+
+  auth {
+    auth_scheme = "SECRETS"
+    description = "Staging RDS Proxy Auth"
+    iam_auth    = "DISABLED"
+    secret_arn  = aws_secretsmanager_secret.staging_db_credentials.arn
+  }
+
+  tags = {
+    Environment = "staging"
+    Name        = "staging-rds-proxy"
+  }
+}
+
+resource "aws_db_proxy_default_target_group" "staging" {
+  db_proxy_name = aws_db_proxy.staging.name
+
+  connection_pool_config {
+    connection_borrow_timeout    = 120
+    max_connections_percent      = 100
+    max_idle_connections_percent = 50
+  }
+}
+
+resource "aws_db_proxy_target" "staging" {
+  db_instance_identifier = module.rds_staging.db_instance_identifier
+  db_proxy_name          = aws_db_proxy.staging.name
+  target_group_name      = aws_db_proxy_default_target_group.staging.name
+}
+
+module "rds_dev" {
+  source = "./modules/rds"
+
+  environment            = "dev"
+  instance_identifier    = "dev-rds"
+  vpc_security_group_ids = [aws_security_group.dev_staging_rds.id]
+  subnet_ids             = data.aws_subnets.dev_available.ids
+  username               = var.username
+  password               = var.password
+}
+
+module "rds_staging" {
+  source = "./modules/rds"
+
+  environment            = "staging"
+  instance_identifier    = "staging-rds"
+  vpc_security_group_ids = [aws_security_group.dev_staging_rds.id]
+  subnet_ids             = data.aws_subnets.dev_available.ids
+  username               = var.username
+  password               = var.password
+}

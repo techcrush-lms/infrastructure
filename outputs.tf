@@ -25,7 +25,7 @@ output "production_db_url" {
 
 output "production_db_username" {
   description = "Username for production DB"
-  value       = data.aws_db_instance.production.master_username
+  value       = var.username
   sensitive   = true
 }
 
@@ -38,4 +38,33 @@ output "production_db_password" {
 output "ecr_repository_urls" {
   description = "The URLs of the ECR repositories"
   value       = { for k, v in aws_ecr_repository.repos : k => v.repository_url }
+}
+
+# --- Dev/Staging RDS Outputs ---
+
+output "dev_db_endpoint" {
+  description = "The endpoint of the development RDS instance"
+  value       = module.rds_dev.db_instance_endpoint
+}
+
+output "staging_db_endpoint" {
+  description = "The endpoint of the staging RDS instance"
+  value       = module.rds_staging.db_instance_endpoint
+}
+
+output "dev_db_username" {
+  description = "The username for the development RDS instance"
+  value       = module.rds_dev.db_username
+  sensitive   = true
+}
+
+output "staging_db_username" {
+  description = "The username for the staging RDS instance"
+  value       = module.rds_staging.db_username
+  sensitive   = true
+}
+
+output "staging_rds_proxy_endpoint" {
+  description = "The endpoint of the staging RDS Proxy"
+  value       = aws_db_proxy.staging.endpoint
 }
