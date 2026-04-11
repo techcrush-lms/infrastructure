@@ -42,5 +42,9 @@ variable "password" {
   description = "Password for the RDS instance"
   type        = string
   sensitive   = true
-  default     = null
+
+  validation {
+    condition     = length(var.password) >= 8 && !can(regex("[/@\"]", var.password))
+    error_message = "The password must be at least 8 characters long and cannot contain '/', '@', or '\"'."
+  }
 }
