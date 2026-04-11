@@ -48,5 +48,5 @@ variable "db_auth_password" {
     error_message = "The password must be at least 8 characters long and cannot contain '/', '@', or '\"'."
   }
 
-  default = "MxProjectStagingPass123!"
+  default = "MxProjectStaging@Pass123"
 }
