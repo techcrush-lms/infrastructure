@@ -82,7 +82,7 @@ output "staging_db_url" {
 
 output "staging_db_uri" {
   description = "Full PostgreSQL URI via RDS Proxy for Staging"
-  value       = "postgresql://${var.db_auth_username}:${var.db_auth_password}@${aws_db_proxy.staging.endpoint}:5432/${module.rds_staging.db_name}"
+  value       = "postgresql://${var.db_auth_username}:${var.db_auth_password}@${aws_db_proxy.staging.endpoint}:5432/${module.rds_staging.db_name}?sslmode=require"
   sensitive   = true
 }
 
