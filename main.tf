@@ -145,6 +145,16 @@ resource "aws_secretsmanager_secret" "db_credentials" {
   name     = "db-credentials-${var.prod_db_identifier}"
 }
 
+resource "aws_security_group_rule" "prod_rds_allow_proxy" {
+  provider                 = aws.prod
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.rds_proxy.id
+  security_group_id        = data.aws_db_instance.production.vpc_security_group_ids[0]
+}
+
 # --- Dev/Staging Infrastructure (us-east-1) ---
 
 module "shared_ec2" {
