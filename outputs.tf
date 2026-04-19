@@ -40,6 +40,12 @@ output "ecr_repository_urls" {
   value       = { for k, v in aws_ecr_repository.repos : k => v.repository_url }
 }
 
+output "production_db_uri" {
+  description = "Full PostgreSQL URI via RDS Proxy for Production"
+  value       = "postgresql://${data.aws_db_instance.production.master_username}:${var.db_auth_password}@${aws_db_proxy.main.endpoint}:5432/${data.aws_db_instance.production.db_name}?sslmode=require"
+  sensitive   = true
+}
+
 # --- Dev/Staging RDS Outputs ---
 
 output "dev_db_endpoint" {

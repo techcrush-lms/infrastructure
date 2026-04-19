@@ -100,6 +100,26 @@ resource "aws_iam_role" "rds_proxy" {
   })
 }
 
+resource "aws_iam_role_policy" "rds_proxy" {
+  provider = aws.prod
+  name     = "rds-proxy-policy-${var.prod_db_identifier}"
+  role     = aws_iam_role.rds_proxy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Effect   = "Allow"
+        Resource = [aws_secretsmanager_secret.db_credentials.arn]
+      }
+    ]
+  })
+}
+
 resource "aws_security_group" "rds_proxy" {
   provider = aws.prod
   name     = "rds-proxy-sg"
