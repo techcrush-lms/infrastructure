@@ -145,6 +145,15 @@ resource "aws_secretsmanager_secret" "db_credentials" {
   name     = "db-credentials-${var.prod_db_identifier}"
 }
 
+resource "aws_secretsmanager_secret_version" "db_credentials" {
+  provider  = aws.prod
+  secret_id = aws_secretsmanager_secret.db_credentials.id
+  secret_string = jsonencode({
+    username = data.aws_db_instance.production.master_username
+    password = var.db_auth_password
+  })
+}
+
 resource "aws_security_group_rule" "prod_rds_allow_proxy" {
   provider                 = aws.prod
   type                     = "ingress"
