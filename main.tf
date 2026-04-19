@@ -152,7 +152,7 @@ resource "aws_security_group_rule" "prod_rds_allow_proxy" {
   to_port                  = 5432
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.rds_proxy.id
-  security_group_id        = data.aws_db_instance.production.vpc_security_group_ids[0]
+  security_group_id        = data.aws_db_instance.production.vpc_security_groups[0]
 }
 
 # --- Dev/Staging Infrastructure (us-east-1) ---
