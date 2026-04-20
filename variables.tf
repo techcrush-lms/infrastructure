@@ -49,6 +49,17 @@ variable "db_auth_password" {
   }
 }
 
+variable "prod_db_password" {
+  description = "Password for the Production RDS instance"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.prod_db_password) >= 8 && !can(regex("[/@\"]", var.prod_db_password))
+    error_message = "The password must be at least 8 characters long and cannot contain '/', '@', or '\"'."
+  }
+}
+
 variable "db_whitelist_cidr" {
   description = "CIDR block to whitelist for database access (e.g. your local IP)"
   type        = string
