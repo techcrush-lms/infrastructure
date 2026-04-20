@@ -386,3 +386,35 @@ module "rds_staging" {
   username               = var.db_auth_username
   password               = var.db_auth_password
 }
+
+# --- Monitoring Infrastructure (us-east-1) ---
+
+module "monitoring_ec2" {
+  source = "./modules/dev_staging_ec2"
+
+  environment   = "monitoring"
+  vpc_id        = data.aws_vpc.dev_default.id
+  subnet_id     = data.aws_subnet.dev_selected.id
+  instance_type = "t3.micro"
+}
+
+# Additional Security Group Rules for Monitoring
+resource "aws_security_group_rule" "grafana" {
+  type              = "ingress"
+  from_port         = 3000
+  to_port           = 3000
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"] # Change to restrictive CIDR if needed
+  security_group_id = module.monitoring_ec2.security_group_id
+  description       = "Allow Grafana access"
+}
+
+resource "aws_security_group_rule" "prometheus" {
+  type              = "ingress"
+  from_port         = 9090
+  to_port           = 9090
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"] # Change to restrictive CIDR if needed
+  security_group_id = module.monitoring_ec2.security_group_id
+  description       = "Allow Prometheus access"
+}

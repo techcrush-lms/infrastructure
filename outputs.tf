@@ -96,3 +96,8 @@ output "staging_rds_proxy_endpoint" {
   description = "The endpoint of the staging RDS Proxy"
   value       = aws_db_proxy.staging.endpoint
 }
+
+output "monitoring_ec2_public_ip" {
+  description = "Public IP address of the Monitoring instance"
+  value       = module.monitoring_ec2.public_ip
+}
