@@ -418,3 +418,27 @@ resource "aws_security_group_rule" "prometheus" {
   security_group_id = module.monitoring_ec2.security_group_id
   description       = "Allow Prometheus access"
 }
+
+# IAM Policy for CloudWatch Metrics
+resource "aws_iam_policy" "monitoring_cloudwatch" {
+  name        = "monitoring-cloudwatch-policy"
+  description = "Allows monitoring server to get metrics from CloudWatch"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "cloudwatch:GetMetricData",
+          "cloudwatch:ListMetrics"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "monitoring_cloudwatch" {
+  role       = module.monitoring_ec2.iam_role_name
+  policy_arn = aws_iam_policy.monitoring_cloudwatch.arn
+}
