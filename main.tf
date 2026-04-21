@@ -422,16 +422,37 @@ resource "aws_security_group_rule" "prometheus" {
 # IAM Policy for CloudWatch Metrics
 resource "aws_iam_policy" "monitoring_cloudwatch" {
   name        = "monitoring-cloudwatch-policy"
-  description = "Allows monitoring server to get metrics from CloudWatch"
+  description = "Allows monitoring server to get metrics from CloudWatch and discover RDS/Proxy resources"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "AllowGrafanaToReadMetrics"
+        Effect = "Allow"
         Action = [
+          "cloudwatch:DescribeAlarmsForMetric",
+          "cloudwatch:DescribeAlarmHistory",
+          "cloudwatch:DescribeAlarms",
+          "cloudwatch:ListMetrics",
           "cloudwatch:GetMetricData",
-          "cloudwatch:ListMetrics"
+          "cloudwatch:GetMetricStatistics"
         ]
-        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        Sid    = "AllowGrafanaToDiscoverResources"
+        Effect = "Allow"
+        Action = [
+          "logs:DescribeLogGroups",
+          "logs:GetLogEvents",
+          "logs:FilterLogEvents",
+          "ec2:DescribeInstances",
+          "ec2:DescribeRegions",
+          "tag:GetResources",
+          "rds:DescribeDBInstances",
+          "rds:DescribeDBClusters",
+          "rds:ListTagsForResource"
+        ]
         Resource = "*"
       }
     ]
