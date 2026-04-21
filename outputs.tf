@@ -101,3 +101,8 @@ output "monitoring_ec2_public_ip" {
   description = "Public IP address of the Monitoring instance"
   value       = module.monitoring_ec2.public_ip
 }
+
+output "monitoring_iam_role_arn" {
+  description = "The ARN of the IAM role attached to the Monitoring instance"
+  value       = module.monitoring_ec2.iam_role_arn
+}
