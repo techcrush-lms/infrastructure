@@ -46,56 +46,8 @@ output "production_db_uri" {
   sensitive   = true
 }
 
-# --- Dev/Staging RDS Outputs ---
+# --- Dev/Staging RDS Outputs (Removed) ---
 
-output "dev_db_endpoint" {
-  description = "The endpoint of the development RDS instance"
-  value       = module.rds_dev.db_instance_endpoint
-}
-
-output "staging_db_endpoint" {
-  description = "The endpoint of the staging RDS instance"
-  value       = module.rds_staging.db_instance_endpoint
-}
-
-output "dev_db_username" {
-  description = "The username for the development RDS instance"
-  value       = var.db_auth_username
-  sensitive   = true
-}
-
-output "staging_db_username" {
-  description = "The username for the staging RDS instance"
-  value       = var.db_auth_username
-  sensitive   = true
-}
-
-output "dev_db_url" {
-  description = "Connection URL for the development DB"
-  value       = module.rds_dev.db_instance_endpoint
-}
-
-output "dev_db_uri" {
-  description = "Full PostgreSQL URI for the development DB"
-  value       = "postgresql://${var.db_auth_username}:${var.db_auth_password}@${module.rds_dev.db_instance_endpoint}/${module.rds_dev.db_name}"
-  sensitive   = true
-}
-
-output "staging_db_url" {
-  description = "Connection URL via RDS Proxy for Staging"
-  value       = "${aws_db_proxy.staging.endpoint}:5432"
-}
-
-output "staging_db_uri" {
-  description = "Full PostgreSQL URI via RDS Proxy for Staging"
-  value       = "postgresql://${var.db_auth_username}:${var.db_auth_password}@${aws_db_proxy.staging.endpoint}:5432/${module.rds_staging.db_name}?sslmode=require"
-  sensitive   = true
-}
-
-output "staging_rds_proxy_endpoint" {
-  description = "The endpoint of the staging RDS Proxy"
-  value       = aws_db_proxy.staging.endpoint
-}
 
 output "monitoring_ec2_public_ip" {
   description = "Public IP address of the Monitoring instance"
