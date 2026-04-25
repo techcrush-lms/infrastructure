@@ -14,6 +14,12 @@ variable "subnet_id" {
 }
 
 variable "instance_type" {
-  description = "EC2 instance type"
+  description = "Instance type"
   type        = string
+}
+
+variable "architecture" {
+  description = "Instance architecture (amd64 or arm64)"
+  type        = string
+  default     = "amd64"
 }

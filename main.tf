@@ -256,26 +256,29 @@ module "monitoring_ec2" {
   environment   = "monitoring"
   vpc_id        = data.aws_vpc.prod_selected.id          # Use Production VPC
   subnet_id     = data.aws_instance.production.subnet_id # Place next to Production EC2
-  instance_type = "t2.nano"
+  instance_type = "t4g.nano"                             # Graviton (uses different vCPU pool)
+  architecture  = "arm64"
 }
 
 # Additional Security Group Rules for Monitoring
 resource "aws_security_group_rule" "grafana" {
+  provider          = aws.prod
   type              = "ingress"
   from_port         = 3000
   to_port           = 3000
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"] # Change to restrictive CIDR if needed
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.monitoring_ec2.security_group_id
   description       = "Allow Grafana access"
 }
 
 resource "aws_security_group_rule" "prometheus" {
+  provider          = aws.prod
   type              = "ingress"
   from_port         = 9090
   to_port           = 9090
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"] # Change to restrictive CIDR if needed
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.monitoring_ec2.security_group_id
   description       = "Allow Prometheus access"
 }
@@ -321,6 +324,7 @@ resource "aws_iam_policy" "monitoring_cloudwatch" {
 }
 
 resource "aws_iam_role_policy_attachment" "monitoring_cloudwatch" {
+  provider   = aws.prod
   role       = module.monitoring_ec2.iam_role_name
   policy_arn = aws_iam_policy.monitoring_cloudwatch.arn
 }
