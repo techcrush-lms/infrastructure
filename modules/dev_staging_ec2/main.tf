@@ -120,7 +120,6 @@ resource "aws_instance" "shared_compute" {
   lifecycle {
     ignore_changes = [
       ami,
-      instance_type,
     ]
   }
 }
