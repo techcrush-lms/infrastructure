@@ -67,3 +67,22 @@ data "aws_subnets" "dev_available" {
 data "aws_subnet" "dev_selected" {
   id = data.aws_subnets.dev_available.ids[0]
 }
+
+# Routing table discovery for VPC Peering
+data "aws_route_table" "dev_default" {
+  # Default us-east-1
+  vpc_id = data.aws_vpc.dev_default.id
+  filter {
+    name   = "association.main"
+    values = ["true"]
+  }
+}
+
+data "aws_route_table" "prod_selected" {
+  provider = aws.prod
+  vpc_id   = data.aws_vpc.prod_selected.id
+  filter {
+    name   = "association.main"
+    values = ["true"]
+  }
+}
