@@ -242,7 +242,7 @@ resource "aws_key_pair" "bastion" {
 resource "aws_instance" "bastion" {
   provider      = aws.prod
   ami           = data.aws_ami.ubuntu_prod.id
-  instance_type = "t2.micro"
+  instance_type = "t2.nano"
   subnet_id     = data.aws_instance.production.subnet_id
   key_name      = aws_key_pair.bastion.key_name
 
