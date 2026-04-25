@@ -60,13 +60,13 @@ output "monitoring_iam_role_arn" {
 }
 
 output "bastion_public_ip" {
-  description = "Public IP address of the production bastion host"
-  value       = aws_instance.bastion.public_ip
+  description = "Public IP address of the unified Monitoring/Bastion host"
+  value       = module.monitoring_ec2.public_ip
 }
 
 output "rds_ssh_tunnel_command" {
   description = "Command to create an SSH tunnel to the production RDS instance"
-  value       = "ssh -i path/to/your/private_key -L 5432:${data.aws_db_instance.production.address}:5432 ubuntu@${aws_instance.bastion.public_ip}"
+  value       = "ssh -L 5432:${data.aws_db_instance.production.address}:5432 ubuntu@${module.monitoring_ec2.public_ip}"
 }
 
 output "dev_vpc_cidr" {
