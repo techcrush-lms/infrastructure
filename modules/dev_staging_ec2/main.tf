@@ -1,5 +1,5 @@
 resource "aws_security_group" "shared_ec2" {
-  name        = "${var.environment}-shared-ec2-sg"
+  name_prefix = "${var.environment}-shared-ec2-sg-"
   description = "Security Group for Shared Compute (Dev/Staging)"
   vpc_id      = var.vpc_id
 

@@ -29,10 +29,6 @@ import {
   id = "sg-0359335a9a1bc1266_ingress_tcp_22_22_0.0.0.0/0"
 }
 
-import {
-  to = module.monitoring_ec2.aws_security_group.shared_ec2
-  id = "sg-00d484be5b8ba4c24"
-}
 
 resource "aws_instance" "production" {
   provider      = aws.prod
