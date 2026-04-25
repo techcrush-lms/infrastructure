@@ -3,29 +3,6 @@ resource "aws_security_group" "shared_ec2" {
   description = "Security Group for Shared Compute (Dev/Staging)"
   vpc_id      = var.vpc_id
 
-  # Allow Traefik (80/443)
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # SSH Access (usually needed for debugging, but keeping it restrictive is better)
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Recommendation: Restrict to your IP
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -41,6 +18,33 @@ resource "aws_security_group" "shared_ec2" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_security_group_rule" "http" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.shared_ec2.id
+}
+
+resource "aws_security_group_rule" "https" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.shared_ec2.id
+}
+
+resource "aws_security_group_rule" "ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.shared_ec2.id
 }
 
 # IAM Role for EC2 Instance
@@ -111,6 +115,13 @@ resource "aws_instance" "shared_compute" {
   tags = {
     Name        = "${var.environment}-server"
     Environment = var.environment
+  }
+
+  lifecycle {
+    ignore_changes = [
+      ami,
+      instance_type,
+    ]
   }
 }
 
