@@ -58,21 +58,3 @@ output "monitoring_iam_role_arn" {
   description = "The ARN of the IAM role attached to the Monitoring instance"
   value       = module.monitoring_ec2.iam_role_arn
 }
-
-output "bastion_public_ip" {
-  description = "Public IP address of the unified Monitoring/Bastion host"
-  value       = module.monitoring_ec2.public_ip
-}
-
-output "rds_ssh_tunnel_command" {
-  description = "Command to create an SSH tunnel to the production RDS instance"
-  value       = "ssh -L 5432:${data.aws_db_instance.production.address}:5432 ubuntu@${module.monitoring_ec2.public_ip}"
-}
-
-output "dev_vpc_cidr" {
-  value = data.aws_vpc.dev_default.cidr_block
-}
-
-output "prod_vpc_cidr" {
-  value = data.aws_vpc.prod_selected.cidr_block
-}

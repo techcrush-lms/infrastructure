@@ -29,7 +29,7 @@ variable "environment" {
 variable "shared_instance_type" {
   description = "Instance type for the shared EC2"
   type        = string
-  default     = "t2.nano"
+  default     = "t3.medium"
 }
 
 variable "db_auth_username" {
@@ -64,9 +64,4 @@ variable "db_whitelist_cidr" {
   description = "CIDR block to whitelist for database access (e.g. your local IP)"
   type        = string
   default     = "0.0.0.0/0"
-}
-
-variable "bastion_public_key" {
-  description = "The public SSH key for the bastion host"
-  type        = string
 }

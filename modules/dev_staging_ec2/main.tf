@@ -95,7 +95,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-${var.architecture}-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-noble-24.04-amd64-server-*"]
   }
 
   filter {
@@ -120,6 +120,7 @@ resource "aws_instance" "shared_compute" {
   lifecycle {
     ignore_changes = [
       ami,
+      instance_type,
     ]
   }
 }

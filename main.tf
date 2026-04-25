@@ -185,27 +185,6 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
   })
 }
 
-resource "aws_security_group_rule" "prod_rds_allow_proxy" {
-  provider                 = aws.prod
-  type                     = "ingress"
-  from_port                = 5432
-  to_port                  = 5432
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.rds_proxy.id
-  security_group_id        = data.aws_db_instance.production.vpc_security_groups[0]
-}
-
-resource "aws_security_group_rule" "prod_rds_allow_monitoring_bastion" {
-  provider                 = aws.prod
-  type                     = "ingress"
-  from_port                = 5432
-  to_port                  = 5432
-  protocol                 = "tcp"
-  source_security_group_id = module.monitoring_ec2.security_group_id
-  security_group_id        = data.aws_db_instance.production.vpc_security_groups[0]
-  description              = "Allow PostgreSQL access from Monitoring/Bastion host in Prod VPC"
-}
-
 # --- Dev/Staging Infrastructure (us-east-1) ---
 
 module "shared_ec2" {
@@ -249,20 +228,14 @@ resource "aws_ecr_repository" "repos" {
 module "monitoring_ec2" {
   source = "./modules/dev_staging_ec2"
 
-  providers = {
-    aws = aws.prod # Move to eu-west-1
-  }
-
   environment   = "monitoring"
-  vpc_id        = data.aws_vpc.prod_selected.id          # Use Production VPC
-  subnet_id     = data.aws_instance.production.subnet_id # Place next to Production EC2
-  instance_type = "t4g.nano"                             # Graviton (uses different vCPU pool)
-  architecture  = "arm64"
+  vpc_id        = data.aws_vpc.dev_default.id
+  subnet_id     = data.aws_subnet.dev_selected.id
+  instance_type = "t3.micro"
 }
 
 # Additional Security Group Rules for Monitoring
 resource "aws_security_group_rule" "grafana" {
-  provider          = aws.prod
   type              = "ingress"
   from_port         = 3000
   to_port           = 3000
@@ -273,7 +246,6 @@ resource "aws_security_group_rule" "grafana" {
 }
 
 resource "aws_security_group_rule" "prometheus" {
-  provider          = aws.prod
   type              = "ingress"
   from_port         = 9090
   to_port           = 9090
@@ -324,7 +296,6 @@ resource "aws_iam_policy" "monitoring_cloudwatch" {
 }
 
 resource "aws_iam_role_policy_attachment" "monitoring_cloudwatch" {
-  provider   = aws.prod
   role       = module.monitoring_ec2.iam_role_name
   policy_arn = aws_iam_policy.monitoring_cloudwatch.arn
 }
