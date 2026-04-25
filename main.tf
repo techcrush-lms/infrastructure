@@ -30,18 +30,8 @@ import {
 }
 
 import {
-  to = module.monitoring_ec2.aws_security_group_rule.http
-  id = "sg-0932e77a50fb6a0fb_ingress_tcp_80_80_0.0.0.0/0"
-}
-
-import {
-  to = module.monitoring_ec2.aws_security_group_rule.https
-  id = "sg-0932e77a50fb6a0fb_ingress_tcp_443_443_0.0.0.0/0"
-}
-
-import {
-  to = module.monitoring_ec2.aws_security_group_rule.ssh
-  id = "sg-0932e77a50fb6a0fb_ingress_tcp_22_22_0.0.0.0/0"
+  to = module.monitoring_ec2.aws_security_group.shared_ec2
+  id = "sg-00d484be5b8ba4c24"
 }
 
 resource "aws_instance" "production" {
@@ -92,6 +82,10 @@ resource "aws_db_proxy" "main" {
     description = "RDS Proxy Auth"
     iam_auth    = "DISABLED"
     secret_arn  = aws_secretsmanager_secret.db_credentials.arn
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -183,6 +177,17 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
     username = data.aws_db_instance.production.master_username
     password = var.prod_db_password
   })
+}
+
+resource "aws_security_group_rule" "prod_rds_allow_proxy" {
+  provider                 = aws.prod
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.rds_proxy.id
+  security_group_id        = data.aws_db_instance.production.vpc_security_groups[0]
+  description              = "Allow traffic from RDS Proxy to RDS"
 }
 
 # --- Dev/Staging Infrastructure (us-east-1) ---
