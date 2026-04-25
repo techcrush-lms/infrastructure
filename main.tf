@@ -13,6 +13,37 @@ import {
   provider = aws.prod
 }
 
+# Import standalone rules for existing Security Groups
+import {
+  to = module.shared_ec2.aws_security_group_rule.http
+  id = "sg-0359335a9a1bc1266_ingress_tcp_80_80_0.0.0.0/0"
+}
+
+import {
+  to = module.shared_ec2.aws_security_group_rule.https
+  id = "sg-0359335a9a1bc1266_ingress_tcp_443_443_0.0.0.0/0"
+}
+
+import {
+  to = module.shared_ec2.aws_security_group_rule.ssh
+  id = "sg-0359335a9a1bc1266_ingress_tcp_22_22_0.0.0.0/0"
+}
+
+import {
+  to = module.monitoring_ec2.aws_security_group_rule.http
+  id = "sg-0932e77a50fb6a0fb_ingress_tcp_80_80_0.0.0.0/0"
+}
+
+import {
+  to = module.monitoring_ec2.aws_security_group_rule.https
+  id = "sg-0932e77a50fb6a0fb_ingress_tcp_443_443_0.0.0.0/0"
+}
+
+import {
+  to = module.monitoring_ec2.aws_security_group_rule.ssh
+  id = "sg-0932e77a50fb6a0fb_ingress_tcp_22_22_0.0.0.0/0"
+}
+
 resource "aws_instance" "production" {
   provider      = aws.prod
   ami           = data.aws_instance.production.ami
