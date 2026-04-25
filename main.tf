@@ -164,6 +164,65 @@ resource "aws_security_group_rule" "prod_rds_allow_proxy" {
   security_group_id        = data.aws_db_instance.production.vpc_security_groups[0]
 }
 
+# --- Bastion Host Infrastructure (eu-west-1) ---
+
+resource "aws_security_group" "bastion" {
+  provider = aws.prod
+  name     = "production-bastion-sg"
+  vpc_id   = data.aws_vpc.prod_selected.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.db_whitelist_cidr]
+    description = "Allow SSH from whitelisted CIDR"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "production-bastion-sg"
+    Environment = "production"
+  }
+}
+
+resource "aws_security_group_rule" "prod_rds_allow_bastion" {
+  provider                 = aws.prod
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.bastion.id
+  security_group_id        = data.aws_db_instance.production.vpc_security_groups[0]
+}
+
+resource "aws_key_pair" "bastion" {
+  provider   = aws.prod
+  key_name   = "production-bastion-key"
+  public_key = var.bastion_public_key
+}
+
+resource "aws_instance" "bastion" {
+  provider      = aws.prod
+  ami           = data.aws_ami.ubuntu_prod.id
+  instance_type = "t3.micro"
+  subnet_id     = data.aws_instance.production.subnet_id
+  key_name      = aws_key_pair.bastion.key_name
+
+  vpc_security_group_ids = [aws_security_group.bastion.id]
+
+  tags = {
+    Name        = "production-bastion"
+    Environment = "production"
+  }
+}
+
 # --- Dev/Staging Infrastructure (us-east-1) ---
 
 module "shared_ec2" {

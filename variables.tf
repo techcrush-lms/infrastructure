@@ -65,3 +65,8 @@ variable "db_whitelist_cidr" {
   type        = string
   default     = "0.0.0.0/0"
 }
+
+variable "bastion_public_key" {
+  description = "The public SSH key for the bastion host"
+  type        = string
+}
