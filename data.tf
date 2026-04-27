@@ -67,3 +67,6 @@ data "aws_subnets" "dev_available" {
 data "aws_subnet" "dev_selected" {
   id = data.aws_subnets.dev_available.ids[0]
 }
+
+# Look up the current AWS account ID for use in IAM ARNs
+data "aws_caller_identity" "current" {}

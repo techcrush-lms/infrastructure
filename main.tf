@@ -205,6 +205,35 @@ resource "aws_ec2_instance_connect_endpoint" "main" {
   }
 }
 
+resource "aws_iam_policy" "eic_tunnel_rds" {
+  provider    = aws.prod
+  name        = "eic-tunnel-rds-policy"
+  description = "Allows opening EIC tunnels to the production RDS on port 5432"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "AllowEICTunnelToRDS"
+        Effect   = "Allow"
+        Action   = "ec2-instance-connect:OpenTunnel"
+        Resource = "arn:aws:ec2:${var.prod_region}:${data.aws_caller_identity.current.account_id}:instance-connect-endpoint/${aws_ec2_instance_connect_endpoint.main.id}"
+        Condition = {
+          NumericEquals = {
+            "ec2:remotePort" = "5432"
+          }
+        }
+      },
+      {
+        Sid      = "AllowDescribeEICEndpoints"
+        Effect   = "Allow"
+        Action   = "ec2:DescribeInstanceConnectEndpoints"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_security_group_rule" "rds_allow_eic" {
   provider                 = aws.prod
   type                     = "ingress"
@@ -214,6 +243,14 @@ resource "aws_security_group_rule" "rds_allow_eic" {
   source_security_group_id = aws_security_group.eic_endpoint.id
   security_group_id        = data.aws_db_instance.production.vpc_security_groups[0]
   description              = "Allow traffic from EC2 Instance Connect Endpoint"
+}
+
+# Attach EIC tunnel policy to each developer IAM user
+resource "aws_iam_user_policy_attachment" "eic_tunnel_rds" {
+  provider   = aws.prod
+  for_each   = toset(var.eic_tunnel_user_arns)
+  user       = regex("iam::.*:user/(.*)", each.value)[0]
+  policy_arn = aws_iam_policy.eic_tunnel_rds.arn
 }
 
 # --- Dev/Staging Infrastructure (us-east-1) ---

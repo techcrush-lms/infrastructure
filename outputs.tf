@@ -75,3 +75,8 @@ output "production_region" {
   description = "The AWS region for production resources"
   value       = var.prod_region
 }
+
+output "eic_tunnel_policy_arn" {
+  description = "ARN of the IAM policy to attach to any user who needs RDS tunnel access"
+  value       = aws_iam_policy.eic_tunnel_rds.arn
+}
