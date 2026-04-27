@@ -13,21 +13,7 @@ import {
   provider = aws.prod
 }
 
-# Import standalone rules for existing Security Groups
-import {
-  to = module.shared_ec2.aws_security_group_rule.http
-  id = "sg-0359335a9a1bc1266_ingress_tcp_80_80_0.0.0.0/0"
-}
-
-import {
-  to = module.shared_ec2.aws_security_group_rule.https
-  id = "sg-0359335a9a1bc1266_ingress_tcp_443_443_0.0.0.0/0"
-}
-
-import {
-  to = module.shared_ec2.aws_security_group_rule.ssh
-  id = "sg-0359335a9a1bc1266_ingress_tcp_22_22_0.0.0.0/0"
-}
+# --- Production Infrastructure (eu-west-1) ---
 
 
 resource "aws_instance" "production" {
@@ -184,6 +170,51 @@ resource "aws_security_group_rule" "prod_rds_allow_proxy" {
   source_security_group_id = aws_security_group.rds_proxy.id
   security_group_id        = data.aws_db_instance.production.vpc_security_groups[0]
   description              = "Allow traffic from RDS Proxy to RDS"
+}
+
+# --- EC2 Instance Connect (EIC) Endpoint for Secure RDS Access ---
+
+resource "aws_security_group" "eic_endpoint" {
+  provider    = aws.prod
+  name        = "eic-endpoint-sg"
+  description = "Security group for EC2 Instance Connect Endpoint"
+  vpc_id      = data.aws_vpc.prod_selected.id
+
+  # No ingress rules needed - EIC uses IAM for authentication
+
+  egress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    description = "Allow traffic to RDS"
+    # Target the RDS security group directly for tighter control
+    security_groups = [data.aws_db_instance.production.vpc_security_groups[0]]
+  }
+
+  tags = {
+    Name = "eic-endpoint-sg"
+  }
+}
+
+resource "aws_ec2_instance_connect_endpoint" "main" {
+  provider           = aws.prod
+  subnet_id          = data.aws_subnets.prod_available.ids[0]
+  security_group_ids = [aws_security_group.eic_endpoint.id]
+
+  tags = {
+    Name = "rds-eic-endpoint"
+  }
+}
+
+resource "aws_security_group_rule" "rds_allow_eic" {
+  provider                 = aws.prod
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.eic_endpoint.id
+  security_group_id        = data.aws_db_instance.production.vpc_security_groups[0]
+  description              = "Allow traffic from EC2 Instance Connect Endpoint"
 }
 
 # --- Dev/Staging Infrastructure (us-east-1) ---

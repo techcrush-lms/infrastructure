@@ -29,7 +29,7 @@ variable "environment" {
 variable "shared_instance_type" {
   description = "Instance type for the shared EC2"
   type        = string
-  default     = "t3.medium"
+  default     = "t2.large"
 }
 
 variable "db_auth_username" {
