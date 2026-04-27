@@ -58,3 +58,15 @@ output "monitoring_iam_role_arn" {
   description = "The ARN of the IAM role attached to the Monitoring instance"
   value       = module.monitoring_ec2.iam_role_arn
 }
+
+# --- EC2 Instance Connect (EIC) Connection Details ---
+
+output "eic_endpoint_id" {
+  description = "The ID of the EC2 Instance Connect Endpoint"
+  value       = aws_ec2_instance_connect_endpoint.main.id
+}
+
+output "production_db_hostname" {
+  description = "The hostname (private) of the production RDS instance"
+  value       = split(":", aws_db_instance.production.endpoint)[0]
+}
