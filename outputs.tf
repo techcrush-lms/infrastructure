@@ -31,7 +31,7 @@ output "production_db_username" {
 
 output "production_db_password" {
   description = "Password for production DB"
-  value       = data.aws_db_instance.production.master_username # Note: Data source won't return password, this is just to avoid undeclared vars
+  value       = var.prod_db_password
   sensitive   = true
 }
 
