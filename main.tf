@@ -183,12 +183,11 @@ resource "aws_security_group" "eic_endpoint" {
   # No ingress rules needed - EIC uses IAM for authentication
 
   egress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    description = "Allow traffic to RDS"
-    # Target the RDS security group directly for tighter control
-    security_groups = [data.aws_db_instance.production.vpc_security_groups[0]]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    description = "Allow all outbound for debugging"
+    cidr_blocks = [data.aws_vpc.prod_selected.cidr_block]
   }
 
   tags = {
