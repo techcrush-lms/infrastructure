@@ -70,3 +70,8 @@ output "production_db_hostname" {
   description = "The hostname (private) of the production RDS instance"
   value       = split(":", aws_db_instance.production.endpoint)[0]
 }
+
+output "production_region" {
+  description = "The AWS region for production resources"
+  value       = var.prod_region
+}
