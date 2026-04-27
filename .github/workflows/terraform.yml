@@ -7,7 +7,7 @@ on:
   pull_request:
 
 permissions:
-  id-token: write # Required for OIDC
+  id-token: write # Required for OIDCs
   contents: read
   pull-requests: write # Required for posting comments
 
