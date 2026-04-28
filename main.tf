@@ -217,10 +217,10 @@ resource "aws_iam_policy" "eic_tunnel_rds" {
         Sid      = "AllowEICTunnelToRDS"
         Effect   = "Allow"
         Action   = "ec2-instance-connect:OpenTunnel"
-        Resource = "arn:aws:ec2:${var.prod_region}:${data.aws_caller_identity.current.account_id}:instance-connect-endpoint/${aws_ec2_instance_connect_endpoint.main.id}"
+        Resource = "*"
         Condition = {
           NumericEquals = {
-            "ec2:remotePort" = "5432"
+            "ec2:remotePort" = ["5432", "22"]
           }
         }
       },
