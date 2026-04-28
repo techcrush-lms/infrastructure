@@ -199,6 +199,7 @@ resource "aws_ec2_instance_connect_endpoint" "main" {
   provider           = aws.prod
   subnet_id          = data.aws_subnets.prod_available.ids[0]
   security_group_ids = [aws_security_group.eic_endpoint.id]
+  preserve_client_ip = false
 
   tags = {
     Name = "rds-eic-endpoint"
