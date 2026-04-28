@@ -248,7 +248,7 @@ resource "aws_security_group_rule" "rds_allow_eic" {
 # Attach EIC tunnel policy to each developer IAM user
 resource "aws_iam_user_policy_attachment" "eic_tunnel_rds" {
   provider   = aws.prod
-  for_each   = toset(var.eic_tunnel_user_arns)
+  for_each   = toset(compact(split(",", var.eic_tunnel_user_arns)))
   user       = regex("iam::.*:user/(.*)", each.value)[0]
   policy_arn = aws_iam_policy.eic_tunnel_rds.arn
 }

@@ -67,9 +67,9 @@ variable "db_whitelist_cidr" {
 }
 
 variable "eic_tunnel_user_arns" {
-  description = "List of IAM user/role ARNs to grant EIC RDS tunnel access (port 5432)"
-  type        = list(string)
-  default     = []
+  description = "Comma-separated list of IAM user/role ARNs to grant EIC RDS tunnel access"
+  type        = string
+  default     = ""
 }
 
 variable "github_repo" {
