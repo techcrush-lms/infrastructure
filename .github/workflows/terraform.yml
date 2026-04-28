@@ -9,7 +9,7 @@ on:
 permissions:
   id-token: write # Required for OIDCs
   contents: read
-  pull-requests: write # Required for posting comments
+  pull-requests: write 
 
 jobs:
   validate:
