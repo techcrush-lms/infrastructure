@@ -80,3 +80,8 @@ output "eic_tunnel_policy_arn" {
   description = "ARN of the IAM policy to attach to any user who needs RDS tunnel access"
   value       = aws_iam_policy.eic_tunnel_rds.arn
 }
+
+output "github_actions_role_arn" {
+  description = "ARN of the IAM role for GitHub Actions"
+  value       = aws_iam_role.github_actions.arn
+}

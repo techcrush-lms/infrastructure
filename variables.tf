@@ -71,3 +71,8 @@ variable "eic_tunnel_user_arns" {
   type        = list(string)
   default     = []
 }
+
+variable "github_repo" {
+  description = "GitHub repository in 'owner/repo' format (e.g. 'IsDevOps/infrastructure')"
+  type        = string
+}
